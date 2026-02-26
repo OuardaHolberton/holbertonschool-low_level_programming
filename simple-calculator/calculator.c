@@ -3,6 +3,7 @@
 int main(void)
 {
 	int choice = -1;
+	int a, b, result;
 
 	while (choice != 0)
 {
@@ -18,7 +19,18 @@ int main(void)
 
 	if (choice == 0)
 {
-            printf("Bye!\n");
+	printf("Bye!\n");
+}
+	else if (choice == 1)
+{
+	printf("A: ");
+	scanf("%d", &a);
+
+	printf("B: ");
+	scanf("%d", &b);
+
+	result = a + b;
+	printf("Result: %d\n", result);
 }
 	else if (choice < 0 || choice > 4)
 {
