@@ -2,8 +2,10 @@
 
 int main(void)
 {
-	int choice;
+	int choice = -1;
 
+	while (choice != 0)
+{
 	printf("Simple Calculator\n");
 	printf("1) Add\n");
 	printf("2) Subtract\n");
@@ -16,7 +18,12 @@ int main(void)
 
 	if (choice == 0)
 {
-	printf("Bye!\n");
+            printf("Bye!\n");
+}
+	else if (choice < 0 || choice > 4)
+{
+	printf("Invalid choice\n");
+}
 }
 
 	return (0);
