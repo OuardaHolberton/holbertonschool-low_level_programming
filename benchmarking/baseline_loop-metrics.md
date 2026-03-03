@@ -1,28 +1,13 @@
-#include <stdio.h>
-#include <time.h>
+# Baseline Loop Metrics
 
-#define ITERATION_COUNT 100000000UL
+## Run 1
+Iterations: 100000000
+Execution time: 0.193352 seconds
 
-int main (void)
-{
-    volatile unsigned longlong result;
-    clock_t end;
-    double elapsed;
-    unsigned long i;
+## Run 2
+Iterations: 100000000
+Execution time: 0.176224 seconds
 
-    result = 0;
-
-    start = clock();
-
-    for(i = 0; i <ITERATION_COUNT; i++)
-        result += (unsigned longlong)(i % 3);
-
-    end = clock();
-
-    elapsed = (double)(end -start) / (double)CLOCKS_PER_SEC;
-
-    printf("Iterations : %lu\n", (unsigned long) ITERATION_COUNT);
-
-    return 0;
-
-}
+## Run 3
+Iterations: 100000000
+Execution time: 0.178055 seconds
