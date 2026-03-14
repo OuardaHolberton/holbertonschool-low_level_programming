@@ -18,6 +18,10 @@
 - C
 - Bash
 
+## 🛠️ Compilation
+gcc -Wall -Wextra -pedantic -Werror -std=gnu89
+
+
 ## 📝 Notes
 - Betty style obligatoire
-- Compilé avec gcc
+
