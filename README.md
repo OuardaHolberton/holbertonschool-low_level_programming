@@ -13,6 +13,7 @@
 | more_malloc_free | Plus d'allocation mémoire | 🔄 En cours |
 | intro_debugging | Débogage | ✅ |
 | argc_argv | Arguments de la ligne de commande | ✅ |
+| structures_typedef | Structures et typedef en C | ✅ |
 
 ## 🛠️ Langages utilisés
 - C
