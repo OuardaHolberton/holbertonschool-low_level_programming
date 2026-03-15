@@ -14,8 +14,10 @@ Ce projet porte sur l'utilisation des structures et typedef en C.
 - Maximum 5 fonctions par fichier
 
 ## Exercices
-### 0. Poppy
+
 ![Poppy](./poppy.jpg)
+
+### 0. Poppy
 Définition de la structure `struct dog` avec `name`, `age` et `owner`
 
 ### 1. A dog is the only thing on earth...
