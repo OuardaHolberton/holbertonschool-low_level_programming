@@ -27,3 +27,8 @@ Fonction `init_dog` qui initialise une variable de type `struct dog`
 ### 2. A dog will teach you unconditional love
 Fonction `print_dog` qui affiche les infos d'une variable de type `struct dog`
 
+### 3. Outside of a dog, a book is a man's best friend
+Définition de `dog_t` comme nouveau nom pour `struct dog` avec `typedef`
+
+### 4. A door is what a dog is perpetually on the wrong side of
+Fonction `new_dog` qui crée un nouveau chien avec allocation mémoire
