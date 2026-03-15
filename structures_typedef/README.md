@@ -40,6 +40,6 @@ Fonction `new_dog` qui crée un nouveau chien avec allocation mémoire
 ### 5. How many legs does a dog have if you call his tail a leg?
 Fonction `free_dog` qui libère la mémoire d'un chien
 
-![Poppy6](./poppy6.jpg)
+
 
 
