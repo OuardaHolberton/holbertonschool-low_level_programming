@@ -15,5 +15,5 @@ Ce projet porte sur l'utilisation des structures et typedef en C.
 
 ## Exercices
 ### 0. Poppy
-![Poppy](https://www.dogpackapp.com/blog/wp-content/uploads/2025/03/pumi-closeup-gray-curly-fur.webp)
+![Poppy](./poppy.webp)
 Définition de la structure `struct dog` avec `name`, `age` et `owner`
