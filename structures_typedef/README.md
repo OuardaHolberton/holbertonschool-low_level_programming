@@ -24,3 +24,6 @@ Définition de la structure `struct dog` avec `name`, `age` et `owner`
 Fonction `init_dog` qui initialise une variable de type `struct dog`
 
 
+### 2. A dog will teach you unconditional love
+Fonction `print_dog` qui affiche les infos d'une variable de type `struct dog`
+
