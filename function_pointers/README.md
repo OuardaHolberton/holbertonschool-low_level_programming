@@ -18,3 +18,6 @@ Ce projet porte sur les pointeurs de fonctions en C.
 ## Exercices
 ### 0. What's my name
 Fonction `print_name` qui affiche un nom via un pointeur de fonction
+
+### 1. If you spend too much time thinking about a thing, you'll never get it done
+Fonction `array_iterator` qui exécute une fonction sur chaque élément d'un tableau
