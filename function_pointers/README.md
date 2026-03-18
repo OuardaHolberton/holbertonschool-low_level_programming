@@ -24,3 +24,6 @@ Fonction `array_iterator` qui exécute une fonction sur chaque élément d'un ta
 
 ### 2. To hell with circumstances; I create opportunities
 Fonction `int_index` qui recherche un entier dans un tableau via un pointeur de fonction
+
+### 3. A goal is not always meant to be reached
+Programme `calc` qui effectue des opérations arithmétiques simples via des pointeurs de fonctions
