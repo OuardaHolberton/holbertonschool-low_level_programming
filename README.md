@@ -14,6 +14,7 @@
 | intro_debugging | Débogage | ✅ |
 | argc_argv | Arguments de la ligne de commande | ✅ |
 | structures_typedef | Structures et typedef en C | ✅ |
+| function_pointers | Pointeurs de fonctions en C | ✅ |
 
 ## 🛠️ Langages utilisés
 - C
