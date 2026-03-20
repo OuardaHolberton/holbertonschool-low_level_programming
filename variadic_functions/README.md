@@ -13,3 +13,6 @@ Fonction `sum_them_all` qui retourne la somme de tous ses paramètres
 
 ### 1. To be is to be the value of a variable
 Fonction `print_numbers` qui affiche des nombres séparés par un séparateur
+
+### 2. One woman's constant is another woman's variable
+Fonction `print_strings` qui affiche des strings séparées par un séparateur
