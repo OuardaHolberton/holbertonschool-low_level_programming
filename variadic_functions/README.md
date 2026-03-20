@@ -11,3 +11,5 @@ At the end of this project...
 ### 0. Beauty is variable, ugliness is constant
 Fonction `sum_them_all` qui retourne la somme de tous ses paramètres
 
+### 1. To be is to be the value of a variable
+Fonction `print_numbers` qui affiche des nombres séparés par un séparateur
