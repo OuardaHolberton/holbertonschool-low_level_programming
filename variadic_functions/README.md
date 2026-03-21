@@ -16,3 +16,6 @@ Fonction `print_numbers` qui affiche des nombres séparés par un séparateur
 
 ### 2. One woman's constant is another woman's variable
 Fonction `print_strings` qui affiche des strings séparées par un séparateur
+
+### 3. To be is a to be the value of a variable
+Une fonction flexible qui utilise une structure et une liste variadique pour afficher des caractères, entiers, floats et chaînes de caractères selon un format spécifique
