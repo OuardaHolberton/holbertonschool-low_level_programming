@@ -15,6 +15,7 @@
 | argc_argv | Arguments de la ligne de commande | ✅ |
 | structures_typedef | Structures et typedef en C | ✅ |
 | function_pointers | Pointeurs de fonctions en C | ✅ |
+| variadic_functions | Fonctions variadiques (stdarg.h) | ✅ |
 
 ## 🛠️ Langages utilisés
 - C
