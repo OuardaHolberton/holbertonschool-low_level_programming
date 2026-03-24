@@ -16,6 +16,8 @@
 | structures_typedef | Structures et typedef en C | ✅ |
 | function_pointers | Pointeurs de fonctions en C | ✅ |
 | variadic_functions | Fonctions variadiques (stdarg.h) | ✅ |
+| recursion | Fonctions récursives en C | ✅ |
+| ai_memory_visualizer_valgrind_tracer | Analyse mémoire Valgrind, stack, heap, leaks, crash | ✅ |
 
 ## 🛠️ Langages utilisés
 - C
