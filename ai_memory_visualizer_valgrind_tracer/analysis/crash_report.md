@@ -8,7 +8,7 @@ The program crashes immediately after printing "requesting n=0".
 
 Crash line:
 
-nums[0] = 42;
+ `nums[0] = 42;`
 
 The crash happens because the program tries to write
 to an invalid memory address.
@@ -34,7 +34,7 @@ So `nums` contains NULL (address 0x0).
 ## 3. Root Cause Analysis
 
 The crash is a deterministic NULL pointer dereference.
-
+***
 Execution chain:
 
 1. main sets n = 0
@@ -45,7 +45,7 @@ Execution chain:
 6. write to address 0x0
 7. CPU detects invalid access
 8. OS sends SIGSEGV
-
+***
 
 ## 4. Why the memory access is invalid
 
@@ -97,3 +97,15 @@ not an out-of-bounds access.
 The program must check the pointer before using it.
 
 Example:
+nums = allocate_numbers(n);
+
+if (nums == NULL)
+{
+fprintf(stderr, "Error: invalid allocation\n");
+return (1);
+}
+
+`nums[0] = 42;`
+
+
+This prevents dereferencing NULL.
