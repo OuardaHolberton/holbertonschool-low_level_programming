@@ -313,3 +313,82 @@ by the CPU and the compiler.
 
 Understanding these details is important to correctly
 analyze stack lifetime and undefined behavior.
+
+--------------------------------------------------
+## crash_example.c
+--------------------------------------------------
+
+This program demonstrates a segmentation fault caused by
+dereferencing a NULL pointer.
+
+
+### Memory type
+
+Pointer stored in stack.
+
+No heap allocation occurs when n <= 0.
+
+
+### Allocation
+
+nums = allocate_numbers(0)
+
+Function returns NULL.
+
+Memory map:
+
+Stack
+
+nums -> NULL
+
+Heap
+
+(no memory allocated)
+
+
+### Crash
+
+nums[0] = 42
+
+This tries to write at address 0x0.
+
+NULL is not valid memory.
+
+This causes SIGSEGV.
+
+
+### Lifetime
+
+No heap lifetime exists.
+
+Pointer is invalid from the beginning.
+
+
+### Deterministic chain
+
+main calls allocate_numbers(0)
+
+allocate_numbers returns NULL
+
+nums is NULL
+
+nums[0] write
+
+invalid access
+
+segmentation fault
+
+
+### AI mistake example
+
+AI suggested that the crash was caused by
+an out-of-bounds access.
+
+This is incorrect.
+
+Out-of-bounds requires a valid allocated array.
+
+Here the pointer is NULL,
+so no array exists.
+
+The real error is NULL pointer dereference.
