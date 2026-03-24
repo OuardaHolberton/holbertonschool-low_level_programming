@@ -249,3 +249,67 @@ not from the struct itself.
 
 This mistake happened because the AI did not check
 what the free function actually releases.
+
+### Additional AI analysis critique
+
+The AI analysis of the stack behavior was globally correct,
+but some explanations were simplified or incomplete.
+
+1. Stack frame destruction
+
+The AI stated that the stack frame is destroyed when the function returns.
+
+This is not strictly accurate.
+
+In reality, the memory is not erased.
+The CPU only moves the Stack Pointer (SP) to the previous position.
+
+The data of the previous frame may still remain in memory
+until it is overwritten by another function call.
+
+This explains why accessing a pointer to a local variable
+after the function returns leads to undefined behavior.
+
+
+2. Missing arguments in the stack frame
+
+The AI description only mentioned local variables,
+but function parameters are also stored in the stack frame.
+
+For example, in walk_stack we have:
+
+- depth
+- max_depth
+- marker
+
+Each recursive call creates a new frame containing
+both parameters and local variables.
+
+This explains why recursion increases stack usage quickly.
+
+
+3. Frame reuse and addresses
+
+The AI suggested that the same addresses are reused
+because the same function is called again.
+
+This is not always guaranteed.
+
+When a function returns, its frame is removed,
+and a new frame may be allocated at the same location,
+but this depends on the compiler and optimization level.
+
+A correct interpretation is:
+
+The frame is freed,
+then a new frame is allocated at the same stack level.
+
+
+Conclusion
+
+The AI provided a good visualization of the stack,
+but its explanation simplified how memory is actually managed
+by the CPU and the compiler.
+
+Understanding these details is important to correctly
+analyze stack lifetime and undefined behavior.
