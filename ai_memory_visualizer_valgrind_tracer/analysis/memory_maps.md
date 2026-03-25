@@ -1,394 +1,359 @@
+# Memory Analysis Report
+
+**Project:** AI Memory Visualizer  
+
+---
+
+## Table of Contents
+
+| Section | Description |
+|---------|-------------|
+| [stack_example.c](#stack_examplec) | Stack frames and recursion |
+| [aliasing_example.c](#aliasing_examplec) | Pointer aliasing and use-after-free |
+| [heap_example.c](#heap_examplec) | Heap allocation and memory leak |
+| [crash_example.c](#crash_examplec) | NULL dereference and segfault |
+
+---
+
+## stack_example.c
+
+This program demonstrates how stack frames behave during recursion.
+
+The function `walk_stack` calls itself recursively until `depth = 3`.
+At each level, it calls `dump_frame` twice (on entry and on exit).
+
 ### Memory type
 
-All variables are stored in the stack.
+| Type   | Used | Reason        |
+|--------|------|---------------|
+| Stack  | yes  | local variables |
+| Heap   | no   | no malloc     |
+| Global | no   | none          |
 
-No heap allocation occurs because `malloc` is never used.
+All variables are stored on the stack.
+No heap allocation occurs because `malloc` is never called.
 
+### Stack frame contents
+
+Each call to `walk_stack` creates a frame containing:
+
+| Variable    | Type  | Value          |
+|-------------|-------|----------------|
+| `depth`     | int   | current depth  |
+| `max_depth` | int   | 3              |
+| `marker`    | int   | depth * 10     |
+
+Each call to `dump_frame` creates a frame containing:
+
+| Variable     | Type      | Value           |
+|--------------|-----------|-----------------|
+| `local_int`  | int       | 100 + depth     |
+| `local_buf`  | char[16]  | "A" + depth     |
+| `p_local`    | int *     | address of local_int |
+
+### Stack diagram at maximum depth
+
+```
+HIGH ADDR
+┌──────────────────────┐
+│       main()         │
+├──────────────────────┤
+│  walk_stack(0, 3)    │  marker = 0
+├──────────────────────┤
+│  walk_stack(1, 3)    │  marker = 10
+├──────────────────────┤
+│  walk_stack(2, 3)    │  marker = 20
+├──────────────────────┤
+│  walk_stack(3, 3)    │  marker = 30
+├──────────────────────┤
+│  dump_frame("enter", 3)  │  local_int = 103, local_buf = "D"
+└──────────────────────┘
+LOW ADDR
+```
 
 ### Lifetime
 
-Each stack frame exists until the function returns.
+Frames are created during recursion and destroyed in reverse order:
 
-When recursion finishes, frames are removed in reverse order:
+```
+enter depth 0
+  enter depth 1
+    enter depth 2
+      enter depth 3
+      exit depth 3
+    exit depth 2
+  exit depth 1
+exit depth 0
+```
 
-enter depth 0  
-enter depth 1  
-enter depth 2  
-enter depth 3  
+Each frame exists only until its function returns.
+When `walk_stack(3)` returns, its frame is destroyed first.
 
-exit depth 3  
-exit depth 2  
-exit depth 1  
-exit depth 0  
+### Address behavior
 
+On x86/x86_64, the stack grows toward lower addresses.
 
-### AI mistake example
+```
+walk_stack(0) : &marker = 0x7ffe...f0   (highest)
+walk_stack(1) : &marker = 0x7ffe...c0
+walk_stack(2) : &marker = 0x7ffe...90
+walk_stack(3) : &marker = 0x7ffe...60   (lowest)
+```
 
-AI initially suggested that `local_int` could be stored in heap memory.
+### p_local aliasing
 
-This is incorrect.
+```c
+int *p_local = &local_int;
+```
 
-`local_int` is a local variable declared inside a function,
-so it is stored in the stack frame.
+`p_local` and `&local_int` print the same address.
+They are aliases: two names for the same memory location.
 
-Heap memory is only used when `malloc` is called,
-which does not happen in this program.
+### AI mistake
 
-This mistake happened because the AI confused
-local variables with dynamically allocated memory.
+**AI claimed:** `local_int` might be stored in heap memory.
 
+**Why this is wrong:**  
+`local_int` is declared as a local variable inside `dump_frame`.  
+Local variables are always stored on the stack.  
+Heap memory is only used when `malloc` is explicitly called,  
+which never happens in this program.
 
+---
 
---------------------------------------------------
 ## aliasing_example.c
---------------------------------------------------
 
 This program demonstrates pointer aliasing and use-after-free.
 
-Memory is allocated on the heap using malloc.
-
-
 ### Allocation
 
-int *a  
-int *b  
-
-a = malloc(5 * sizeof(int))  
-b = a  
-
-
-Memory map after allocation:
-
-```
-Stack
-
-a -> 0x1000
-b -> 0x1000
-
-Heap
-
-0x1000 -> [0][11][22][33][44]
+```c
+a = make_numbers(5);
+b = a;
 ```
 
-Both pointers refer to the same heap block.
+`make_numbers` allocates an array of 5 integers and fills them with `i * 11`.
 
-This is called pointer aliasing.
+### Memory map after allocation
 
+```
+STACK
+┌─────────────┐
+│  a = 0x1000 │──┐
+│  b = 0x1000 │──┤
+│  n = 5      │  │
+└─────────────┘  │
+                 ▼
+HEAP
+┌────────────────────────────────┐
+│ 0x1000: [0][11][22][33][44]    │
+└────────────────────────────────┘
+```
+
+Both `a` and `b` point to the same heap block.
+This is called **pointer aliasing**.
 
 ### Ownership
 
-Only one free should be done for the allocated memory.
+Only one pointer owns the memory.
+Only one `free` should be called.
 
-free(a)
-
-
-Memory map after free:
-
-```
-Stack
-
-a -> 0x1000
-b -> 0x1000
-
-Heap
-
-0x1000 -> freed memory (invalid)
+```c
+free(a);
 ```
 
-Pointer `b` still contains the old address.
+### Memory map after free
 
-This pointer is now a dangling pointer.
+```
+STACK
+┌─────────────┐
+│  a = 0x1000 │──┐
+│  b = 0x1000 │──┤
+└─────────────┘  │
+                 ▼
+HEAP
+┌────────────────────────────────┐
+│ 0x1000: freed (invalid)        │
+└────────────────────────────────┘
+```
 
+`b` still contains the old address.
+`b` is now a **dangling pointer**.
 
 ### Use-after-free
 
-The program still accesses memory using `b`.
+```c
+printf("  reading b[2]=%d\n", b[2]);
+b[3] = 1234;
+```
 
-b[2]  
-b[3] = 1234  
+This is use-after-free. Behavior is undefined.
 
-This is use-after-free.
+| Result          | Possible |
+|-----------------|----------|
+| works normally  | yes      |
+| crash           | yes      |
+| memory corruption | yes    |
+| Valgrind error  | yes      |
 
-Behavior is undefined.
+### AI mistake
 
-Possible results:
+**AI claimed:** `b` becomes NULL after `free(a)`.
 
-- program works
-- program crashes
-- memory corruption
-- Valgrind error
+**Why this is wrong:**  
+`free()` releases the heap memory block but does not modify any pointer.  
+After `free(a)`, both `a` and `b` still hold the value `0x1000`.  
+`b` is not NULL — it is a dangling pointer pointing to freed memory.  
+Accessing it is undefined behavior.
 
+---
 
-### Lifetime
-
-Heap memory exists from `malloc` until `free`.
-
-After free, memory must not be accessed.
-
-
-### AI mistake example
-
-AI initially suggested that pointer `b` becomes NULL after `free(a)`.
-
-This is incorrect.
-
-`free()` only releases the heap memory.
-
-It does NOT change other pointers.
-
-`b` still contains the old address,
-so it becomes a dangling pointer.
-
-
-
---------------------------------------------------
 ## heap_example.c
---------------------------------------------------
 
-This program demonstrates heap allocation and a memory leak.
-
-The program allocates memory using malloc
-to create structures on the heap.
-
+This program demonstrates heap allocation and a deliberate memory leak.
 
 ### Allocation
 
-alice = malloc(sizeof(Person))  
-bob = malloc(sizeof(Person))  
-
-
-Each structure contains:
-
-- name (allocated with malloc)
-- age (stored in struct)
-
-
-Memory map:
-
-```
-Stack
-
-alice -> 0x2000
-bob -> 0x3000
-
-Heap
-
-0x2000 -> Person (alice)
-0x2100 -> name buffer (alice)
-
-0x3000 -> Person (bob)
-0x3100 -> name buffer (bob)
+```c
+alice = person_new("Alice", 30);
+bob   = person_new("Bob",   41);
 ```
 
+`person_new` performs two allocations per person:
+1. `malloc(sizeof(Person))` for the struct
+2. `malloc(len + 1)` for the name string
 
-### Ownership
+### Memory map after allocation
 
-Each malloc must be paired with free.
+```
+STACK
+┌──────────────┐
+│ alice = 0x2000 │
+│ bob   = 0x3000 │
+└──────────────┘
 
-Correct free order:
+HEAP
+┌───────────────────────────┐
+│ 0x2000 → Person (alice)   │
+│   age  = 30               │
+│   name → 0x2100           │
+├───────────────────────────┤
+│ 0x2100 → "Alice\0"        │
+├───────────────────────────┤
+│ 0x3000 → Person (bob)     │
+│   age  = 41               │
+│   name → 0x3100           │
+├───────────────────────────┤
+│ 0x3100 → "Bob\0"          │
+└───────────────────────────┘
+```
 
-free(alice->name)  
-free(alice)  
+### Correct free order
 
-free(bob->name)  
-free(bob)  
-
+| Step | Code              |
+|------|-------------------|
+| 1    | `free(bob->name)` |
+| 2    | `free(bob)`       |
+| 3    | `free(alice->name)` |
+| 4    | `free(alice)`     |
 
 ### Memory leak
 
-In this program, the function `person_free_partial`
-does not free all allocated memory.
+The program calls `person_free_partial(alice)`:
 
-```
+```c
 static void person_free_partial(Person *p)
 {
-    free(p);
+    if (!p)
+        return;
+    free(p);   /* frees the struct only */
+               /* p->name is NEVER freed */
 }
 ```
 
-The struct is freed, but `p->name` is not freed.
+`alice->name` is never freed.
 
-Memory map:
+### Leak diagram
 
 ```
-Heap
+HEAP after program ends
 
-Person (alice) -> freed
-name (alice) -> NOT freed  ← memory leak
+Person alice  → freed     ✅
+alice->name   → NOT freed ❌  (memory leak)
+
+Person bob    → freed     ✅
+bob->name     → freed     ✅
 ```
 
-This causes a memory leak because the name buffer
-allocated with malloc is never released.
+Valgrind will report:
 
+```
+definitely lost: N bytes in 1 block
+```
 
-### Lifetime
+### AI mistake
 
-Heap memory exists from malloc until free.
+**AI claimed:** the struct `alice` is not freed.
 
-If free is not called,
-memory remains allocated until program ends.
+**Why this is wrong:**  
+`person_free_partial` does call `free(p)`, so the struct itself is freed.  
+The leak is specifically `alice->name`, the internal name buffer,  
+which is never passed to `free()`.  
+The struct and the name are two separate heap allocations.
 
-Valgrind will report this as:
+---
 
-- definitely lost
-- still reachable
-
-
-### AI mistake example
-
-AI initially suggested that the memory leak happens
-because one structure is not freed.
-
-This is not fully correct.
-
-The real problem is that `person_free_partial`
-frees the struct but does not free `p->name`.
-
-The leak comes from the name buffer,
-not from the struct itself.
-
-This mistake happened because the AI did not check
-what the free function actually releases.
-
-### Additional AI analysis critique
-
-The AI analysis of the stack behavior was globally correct,
-but some explanations were simplified or incomplete.
-
-1. Stack frame destruction
-
-The AI stated that the stack frame is destroyed when the function returns.
-
-This is not strictly accurate.
-
-In reality, the memory is not erased.
-The CPU only moves the Stack Pointer (SP) to the previous position.
-
-The data of the previous frame may still remain in memory
-until it is overwritten by another function call.
-
-This explains why accessing a pointer to a local variable
-after the function returns leads to undefined behavior.
-
-
-2. Missing arguments in the stack frame
-
-The AI description only mentioned local variables,
-but function parameters are also stored in the stack frame.
-
-For example, in walk_stack we have:
-
-- depth
-- max_depth
-- marker
-
-Each recursive call creates a new frame containing
-both parameters and local variables.
-
-This explains why recursion increases stack usage quickly.
-
-
-3. Frame reuse and addresses
-
-The AI suggested that the same addresses are reused
-because the same function is called again.
-
-This is not always guaranteed.
-
-When a function returns, its frame is removed,
-and a new frame may be allocated at the same location,
-but this depends on the compiler and optimization level.
-
-A correct interpretation is:
-
-The frame is freed,
-then a new frame is allocated at the same stack level.
-
-
-Conclusion
-
-The AI provided a good visualization of the stack,
-but its explanation simplified how memory is actually managed
-by the CPU and the compiler.
-
-Understanding these details is important to correctly
-analyze stack lifetime and undefined behavior.
-
---------------------------------------------------
 ## crash_example.c
---------------------------------------------------
 
-This program demonstrates a segmentation fault caused by
-dereferencing a NULL pointer.
+This program demonstrates a deterministic NULL pointer dereference.
 
+### Execution
 
-### Memory type
+```c
+int n = 0;
+nums = allocate_numbers(n);
+nums[0] = 42;
+```
 
-Pointer stored in stack.
+`allocate_numbers(0)` returns NULL because `n <= 0`.
 
-No heap allocation occurs when n <= 0.
+### Memory map at crash
 
+```
+STACK
+┌──────────────┐
+│ nums = NULL  │
+│ n    = 0     │
+└──────────────┘
 
-### Allocation
+HEAP
+(nothing allocated)
+```
 
-nums = allocate_numbers(0)
+### Crash chain
 
-Function returns NULL.
+| Step | Action                          |
+|------|---------------------------------|
+| 1    | `main` calls `allocate_numbers(0)` |
+| 2    | `n <= 0` → returns NULL         |
+| 3    | `nums = NULL`                   |
+| 4    | `nums[0] = 42` → write to address 0x0 |
+| 5    | OS rejects access → SIGSEGV     |
+| 6    | Program crashes                 |
 
-Memory map:
+### Why it crashes
 
-Stack
+`nums[0]` is equivalent to `*(nums + 0)` = `*(NULL)` = writing to address `0x0`.
 
-nums -> NULL
+Address `0x0` is not mapped in the process address space.
+The OS sends SIGSEGV and the program terminates immediately.
 
-Heap
+### AI mistake
 
-(no memory allocated)
+**AI claimed:** this is an out-of-bounds access.
 
-
-### Crash
-
-nums[0] = 42
-
-This tries to write at address 0x0.
-
-NULL is not valid memory.
-
-This causes SIGSEGV.
-
-
-### Lifetime
-
-No heap lifetime exists.
-
-Pointer is invalid from the beginning.
-
-
-### Deterministic chain
-
-main calls allocate_numbers(0)
-
-allocate_numbers returns NULL
-
-nums is NULL
-
-nums[0] write
-
-invalid access
-
-segmentation fault
-
-
-### AI mistake example
-
-AI suggested that the crash was caused by
-an out-of-bounds access.
-
-This is incorrect.
-
-Out-of-bounds requires a valid allocated array.
-
-Here the pointer is NULL,
-so no array exists.
-
-The real error is NULL pointer dereference.
+**Why this is wrong:**  
+Out-of-bounds means accessing memory past the end of a valid array.  
+Here, no array was ever allocated.  
+`nums` is NULL, so this is a NULL pointer dereference, not out-of-bounds.  
+These are two different types of memory errors with different causes.
