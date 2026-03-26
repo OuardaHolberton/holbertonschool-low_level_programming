@@ -18,6 +18,8 @@
 | variadic_functions | Fonctions variadiques (stdarg.h) | ✅ |
 | recursion | Fonctions récursives en C | ✅ |
 | ai_memory_visualizer_valgrind_tracer | Analyse mémoire Valgrind, stack, heap, leaks, crash | ✅ |
+| dynamic_analysis |  Analyse dynamique avec GDB et VS Code | ✅|
+|singly_linked_lists | Listes chaînées en C | ✅|
 
 ## 🛠️ Langages utilisés
 - C
