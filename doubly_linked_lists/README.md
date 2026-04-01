@@ -13,6 +13,10 @@ Each node contains an integer value and two pointers: one to the next node and o
 | 2-add_dnodeint.c | Adds a new node at the beginning of a list |
 | 3-add_dnodeint_end.c | Adds a new node at the end of a list |
 | 4-free_dlistint.c | Frees a dlistint_t list |
+| 5-get_dnodeint.c | Returns the nth node of a dlistint_t list |
+| 6-sum_dlistint.c | Returns the sum of all data of a dlistint_t list |
+| 7-insert_dnodeint.c | Inserts a new node at a given position |
+| 8-delete_dnodeint.c | Deletes the node at index of a dlistint_t list |
 
 ## Author
 Ouarda - Holberton School Lille
