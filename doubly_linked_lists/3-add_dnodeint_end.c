@@ -5,7 +5,7 @@
  * @head: head
  * @n: value of the new node
  *
- * * Return: address of the new node, or NULL if it failed
+ *Return: address of the new node, or NULL if it failed
  */
 
 dlistint_t *add_dnodeint_end(dlistint_t **head, const int n)
