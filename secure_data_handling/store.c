@@ -22,10 +22,8 @@ int store_add(store_t *st, session_t *s)
 {
 	node_t *n, *cur;
 
-	if (!st || !s || !s->id) {
-		session_destroy(s);
+	if (!st || !s || !s->id)
 		return 0;
-	}
 	cur = st->head;
 	while (cur) {
 		if (cur->sess && cur->sess->id && strcmp(cur->sess->id, s->id) == 0) {
