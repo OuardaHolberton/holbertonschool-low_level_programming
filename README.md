@@ -20,6 +20,9 @@
 | ai_memory_visualizer_valgrind_tracer | Analyse mémoire Valgrind, stack, heap, leaks, crash | ✅ |
 | dynamic_analysis |  Analyse dynamique avec GDB et VS Code | ✅|
 |singly_linked_lists | Listes chaînées en C | ✅|
+| doubly_linked_lists | Listes doublement chaînées en C | ✅ |
+| secure_data_handling | Analyse mémoire sécurisée | ✅ |
+| hash_tables | Tables de hachage en C | 🔄 |
 
 ## 🛠️ Langages utilisés
 - C
